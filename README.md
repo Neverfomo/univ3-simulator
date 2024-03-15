@@ -1,5 +1,6 @@
 # univ3-simulator
 
+This is a project written by Typescript, so before running, install npm and nodejs first.
 
 ## Install dependencies
 

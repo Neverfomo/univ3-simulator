@@ -1,14 +1,6 @@
-import {computePoolAddress, Pool, Route, SwapOptions, SwapQuoter, SwapRouter} from "@uniswap/v3-sdk";
-import {Currency, CurrencyAmount, Percent, TradeType} from "@uniswap/sdk-core";
-import {getPoolInfo} from "./libs/pool";
 import {CurrentConfig} from "./config";
 import {getProvider} from "./libs/providers";
 import {fromReadableAmount, toReadableAmount} from "./libs/utils";
-import {POOL_FACTORY_CONTRACT_ADDRESS, QUOTER_CONTRACT_ADDRESS, QUOTER_V1_CONTRACT_ADDRESS} from "./libs/constants";
-import {ethers} from "ethers";
-import QuoterV2 from '@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json'
-import Quoter from "@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json";
-import IUniswapV3PoolABI from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
 import {fromQuoteV1} from "./libs/quote";
 import {fromSwapQuoter} from "./libs/swap-quoter";
 

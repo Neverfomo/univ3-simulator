@@ -6,10 +6,6 @@ import {fromSwapQuoter} from "./libs/swap-quoter";
 
 
 
-
-
-
-
 async function simulateSwap(amount: number) {
 
     let provider = getProvider()

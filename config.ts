@@ -11,15 +11,11 @@ export enum Environment {
 }
 
 // Inputs that configure this example to run
-export interface ExampleConfig {
+export interface Config {
   env: Environment
   rpc: {
     local: string
     mainnet: string
-  }
-  wallet: {
-    address: string
-    privateKey: string
   }
   tokens: {
     in: Token
@@ -31,16 +27,11 @@ export interface ExampleConfig {
 
 // Example Configuration
 
-export const CurrentConfig: ExampleConfig = {
+export const CurrentConfig: Config = {
   env: Environment.MAINNET,
   rpc: {
     local: 'http://localhost:8545',
     mainnet: 'https://eth.llamarpc.com'
-  },
-  wallet: {
-    address: '',
-    privateKey:
-      '',
   },
   tokens: {
     in: WETH_TOKEN,

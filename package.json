@@ -8,7 +8,8 @@
     "build": "tsc",
     "lint": "eslint . --ext .ts",
     "poolinfo": "tsc && node dist/pool-info.js",
-    "swap": "tsc && node dist/swap.js"
+    "swap": "tsc && node dist/swap.js",
+    "processcsv": "tsc && node dist/process-csv.js"
   },
   "engines": {
     "node": ">=14.0.0"
@@ -17,17 +18,21 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^10.0.0",
-    "ethers": "^6.11.1",
-    "express": "^4.17.1",
     "@uniswap/sdk-core": "^3.1.0",
     "@uniswap/v3-core": "^1.0.1",
-    "@uniswap/v3-sdk": "^3.9.0"
+    "@uniswap/v3-sdk": "^3.9.0",
+    "csv-parse": "^5.5.5",
+    "csv-parser": "^3.0.0",
+    "csv-stringify": "^6.4.6",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^10.0.0",
+    "ethers": "^6.11.1",
+    "express": "^4.17.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/jest": "^27.0.1",
-    "@types/node": "^16.7.13",
+    "@types/node": "^16.18.91",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "@typescript-eslint/parser": "^4.28.5",
     "eslint": "^7.32.0",

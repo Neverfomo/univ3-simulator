@@ -1,5 +1,6 @@
 import {getPoolInfo} from "./libs/pool";
 import {getProvider} from "./libs/providers";
+import {USDC_TOKEN, WETH_TOKEN} from "./libs/constants";
 
 
 async function displayPool() {
@@ -11,7 +12,7 @@ async function displayPool() {
     }
     let blockNumber = currentBlockNumber
     console.log(`Block number: ${blockNumber}`)
-    let poolInfo = await getPoolInfo(blockNumber)
+    let poolInfo = await getPoolInfo(blockNumber, USDC_TOKEN, WETH_TOKEN)
     console.log(poolInfo)
 
 

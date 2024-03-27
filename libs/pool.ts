@@ -6,6 +6,7 @@ import { CurrentConfig } from '../config'
 import { POOL_FACTORY_CONTRACT_ADDRESS } from './constants'
 import { getProvider } from './providers'
 import Quoter from "@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json";
+import {Token} from "@uniswap/sdk-core";
 
 interface PoolInfo {
   token0: string
@@ -17,19 +18,20 @@ interface PoolInfo {
   tick: number
 }
 
-export async function getPoolInfo(blockNumber: number): Promise<PoolInfo> {
+export async function getPoolInfo(blockNumber: number, tokenIn: Token, tokenOut: Token): Promise<PoolInfo> {
   const provider = getProvider()
   if (!provider) {
     throw new Error('No provider')
   }
 
+  // 1. get pool address by (input token, output token, pool fee)
   const currentPoolAddress = computePoolAddress({
     factoryAddress: POOL_FACTORY_CONTRACT_ADDRESS,
-    tokenA: CurrentConfig.tokens.in,
-    tokenB: CurrentConfig.tokens.out,
+    tokenA: tokenIn,
+    tokenB: tokenOut,
     fee: CurrentConfig.tokens.poolFee,
   })
-
+  // 2. create a Contract instance by the pool address and UniswapV3PoolABI
   const poolContract = new ethers.Contract(
     currentPoolAddress,
     IUniswapV3PoolABI.abi,
@@ -37,7 +39,7 @@ export async function getPoolInfo(blockNumber: number): Promise<PoolInfo> {
   )
 
 
-
+  // 3. Fetch pool info by calling the pool contract methods.
   const [token0, token1, fee, tickSpacing, liquidity, slot0] =
     await Promise.all([
       poolContract.token0({ blockTag: blockNumber }),

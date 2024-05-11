@@ -31,6 +31,7 @@ export async function getPoolInfo(blockNumber: number, tokenIn: Token, tokenOut:
     tokenB: tokenOut,
     fee: CurrentConfig.tokens.poolFee,
   })
+  console.log(currentPoolAddress)
   // 2. create a Contract instance by the pool address and UniswapV3PoolABI
   const poolContract = new ethers.Contract(
     currentPoolAddress,

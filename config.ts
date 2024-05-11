@@ -31,7 +31,8 @@ export const CurrentConfig: Config = {
   env: Environment.MAINNET,
   rpc: {
     local: 'http://localhost:8545',
-    mainnet: 'https://eth.llamarpc.com'
+    // mainnet: 'https://eth.llamarpc.com'
+    mainnet: 'https://eth-mainnet.g.alchemy.com/v2/gmt0k2JiwMqSvXsMG7bP98DcrPhfilE1'
   },
   tokens: {
     in: WETH_TOKEN,

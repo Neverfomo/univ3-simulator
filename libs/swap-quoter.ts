@@ -45,7 +45,7 @@ async function getOutputQuote(route: Route<Currency, Currency>, amountIn: number
 export async function fromSwapQuoter(blockNumber: number, amount: number, tokenIn: Token, tokenOut: Token) {
     // 1. fetch pool info by (block number, input token, output token)
     const poolInfo = await getPoolInfo(blockNumber, tokenIn, tokenOut)
-
+    console.log(amount, tokenIn.symbol)
     const pool = new Pool(
         tokenIn,
         tokenOut,

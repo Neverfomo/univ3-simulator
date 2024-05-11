@@ -9,11 +9,12 @@ import {
 } from '../libs/constants'
 import { getProvider } from './providers'
 import { toReadableAmount, fromReadableAmount } from './conversion'
+import {Token} from "@uniswap/sdk-core";
 
 
 
 // Interact with the Quoter contract
-export async function fromQuoteV1(amountIn: number, blockNumber: number) {
+export async function fromQuoteV1(blockNumber: number, amountIn: number, tokenIn: Token, tokenOut: Token) {
   let provider = getProvider()
   if (!provider) {
     throw new Error("Get provider error.")
@@ -24,15 +25,15 @@ export async function fromQuoteV1(amountIn: number, blockNumber: number) {
       Quoter.abi,
       provider
   )
-  const poolConstants = await getPoolConstants()
+  const poolConstants = await getPoolConstants(tokenIn, tokenOut)
   // console.log(poolConstants)
   let params = {
-    tokenIn: poolConstants.token1,
-    tokenOut: poolConstants.token0,
+    tokenIn: tokenIn.address,
+    tokenOut: tokenOut.address,
     fee: poolConstants.fee,
     amountIn: fromReadableAmount(
         amountIn,
-        CurrentConfig.tokens.in.decimals
+        tokenIn.decimals
     ).toString(),
     sqrtPriceLimitX96: 0
   }
@@ -51,15 +52,15 @@ export async function fromQuoteV1(amountIn: number, blockNumber: number) {
   return ethers.utils.defaultAbiCoder.decode(['uint256'], quotedAmountOut)
 }
 
-async function getPoolConstants(): Promise<{
+async function getPoolConstants(tokenIn: Token, tokenOut: Token): Promise<{
   token0: string
   token1: string
   fee: number
 }> {
   const currentPoolAddress = computePoolAddress({
     factoryAddress: POOL_FACTORY_CONTRACT_ADDRESS,
-    tokenA: CurrentConfig.tokens.in,
-    tokenB: CurrentConfig.tokens.out,
+    tokenA: tokenIn,
+    tokenB: tokenOut,
     fee: CurrentConfig.tokens.poolFee,
   })
 

@@ -9,7 +9,8 @@
     "lint": "eslint . --ext .ts",
     "poolinfo": "tsc && node dist/pool-info.js",
     "swap": "tsc && node dist/swap.js",
-    "processcsv": "tsc && node dist/process-csv.js"
+    "processcsv": "tsc && node dist/process-csv.js",
+    "test": "tsc && node dist/test.js"
   },
   "engines": {
     "node": ">=14.0.0"

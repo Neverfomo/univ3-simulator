@@ -11,20 +11,6 @@ import {fromQuoteV1} from "./libs/quote";
 
 let cnt = 0
 let total = 0
-let GAS_UNITS = 123900
-
-function calculateGasFee(gasPriceGwei: number, gasUsed: number): string {
-    // 将 gasPrice 从 Gwei 转换为 ETH
-    const gasPriceETH = gasPriceGwei * 1e-9; // 1 Gwei = 10^-9 ETH
-
-    // 计算交易费用
-    const gasFee = gasPriceETH * gasUsed;
-
-    // 将结果格式化为字符串，确保精度（例如，可以保留到小数点后18位，ETH 的最小单位）
-    const gasFeeFormatted = gasFee.toFixed(18);
-
-    return gasFeeFormatted;
-}
 
 async function processBatch(data: any[]): Promise<any[]> {
     for (let row of data) {
@@ -42,48 +28,33 @@ async function processBatch(data: any[]): Promise<any[]> {
             console.log(`Unknown token address: ${row.input_asset}`)
             continue
         }
-        if (row.simulated_output_amount_v3 != 'ERROR' && row.simulated_output_amount_v3 != '') {
-            console.log(row.simulated_output_amount_v3)
-            console.log(`${cnt}/${total} block_no: ${blockNo + 1}, ${row.input_amount} ${tokenIn.symbol} => ${row.simulated_output_amount_v3} ${tokenOut.symbol}, skip.`)
-            continue
-        }
-        let amountIn = Number(row.input_amount)
+        // if (row.simulated_output_amount_v3 != 'ERROR' && row.simulated_output_amount_v3 != '') {
+        //     console.log(row.simulated_output_amount_v3)
+        //     console.log(`${cnt}/${total} block_no: ${blockNo + 1}, ${row.input_amount} ${tokenIn.symbol} => ${row.simulated_output_amount_v3} ${tokenOut.symbol}, skip.`)
+        //     continue
+        // }
+        let amountIn = Number(ethers.utils.formatUnits(row.input_amount, tokenIn.decimals))
         let amountOutStr: string
-        let amountOutAfterGasStr: string
-        const ethGas = trimFloatString(calculateGasFee(Number(row.gas_in_gwei), GAS_UNITS), 6)
         try {
             // Call SwapQuoter to get the output amount
             // let amountOut = await fromSwapQuoter(blockNo, Number(amountIn.toFixed(6)), tokenIn, tokenOut)
             let amountOut = await fromQuoteV1(blockNo, amountIn, tokenIn, tokenOut)
             amountOutStr = ethers.utils.formatUnits(amountOut.toString(), tokenOut.decimals)
-            // minus gas
-            // compute gas fee
-            if (tokenOut == WETH_TOKEN) {
-                // USDC => WETH
-                amountOutAfterGasStr = String(Number(amountOutStr) - Number(ethGas))
-            } else {
-                // WETH => USDC
-                let price = Number(amountOutStr) / amountIn
-                amountOutAfterGasStr = String((Number(amountOutStr) - price * Number(ethGas)).toFixed(6))
-            }
             amountOutStr = String(Number(amountOutStr).toFixed(6))
-            amountOutAfterGasStr = String(Number(amountOutAfterGasStr).toFixed(6))
         } catch (error) {
             console.log(`Block: ${blockNo}, amountIn: ${amountIn}`)
             console.log(error)
-            amountOutAfterGasStr = 'ERROR'
             amountOutStr = 'ERROR'
         }
-        row.simulated_output_amount_v3 = amountOutAfterGasStr
-        row.estimated_gas = ethGas
-        console.log(`${cnt}/${total} block_no: ${blockNo + 1}, before gas: ${amountIn.toFixed(6)} ${tokenIn.symbol} => ${amountOutStr} ${tokenOut.symbol}, after gas: ${amountIn.toFixed(6)} ${tokenIn.symbol} => ${amountOutAfterGasStr} ${tokenOut.symbol}, gas: ${ethGas} ETH`)
+        row.simulated_output_amount_v3 = amountOutStr
+        console.log(`${cnt}/${total} block_no: ${blockNo + 1}  ${amountIn.toFixed(6)} ${tokenIn.symbol} => ${amountOutStr} ${tokenOut.symbol}`)
     }
     return data;
 }
 
 async function processCsv() {
-    const rawdataPath = 'newdata/rawdata_v3_40000.csv';
-    const newCsv = 'newdata/rawdata_v3.csv';
+    const rawdataPath = 'rawdata_latest.csv';
+    const newCsv = 'newdata/rawdata_latest_v3.csv';
     const data: any[] = [];
 
     // load the csv file
@@ -99,7 +70,7 @@ async function processCsv() {
             for (let i = 0; i < data.length; i += batchSize) {
                 const batch = data.slice(i, i + batchSize);
                 await processBatch(batch);
-                let checkpointFilePath = `newdata/rawdata_v3_${i+batchSize}.csv`
+                let checkpointFilePath = `newdata/rawdata_latest_v3_${i+batchSize}.csv`
                 await saveData(checkpointFilePath, data)
             }
             await saveData(newCsv, data)
@@ -114,22 +85,17 @@ async function saveData(newCsv: string, data: any) {
         header: [
             { id: 'tx_hash', title: 'tx_hash' },
             { id: 'block_no', title: 'block_no' },
-            { id: 'taker_address', title: 'taker_address' },
-            { id: 'maker_address', title: 'maker_address' },
-            { id: 'recipient_address', title: 'recipient_address' },
             { id: 'venue', title: 'venue' },
             { id: 'input_asset', title: 'input_asset' },
             { id: 'output_asset', title: 'output_asset' },
             { id: 'input_amount', title: 'input_amount' },
             { id: 'output_amount', title: 'output_amount' },
-            { id: 'simulated_output_amount', title: 'simulated_output_amount' },
-            { id: 'rfq_welfare', title: 'rfq_welfare' },
-            { id: 'gas_in_gwei', title: 'gas_in_gwei' },
-            { id: 'direction', title: 'direction' },
-            { id: 'different_recipient', title: 'different_recipient' },
-            { id: 'eth_volume', title: 'eth_volume' },
-            { id: 'simulated_output_amount_v3', title: 'simulated_output_amount_v3' },
-            { id: 'estimated_gas', title: 'estimated_gas' }
+            { id: 'reserve0', title: 'reserve0' },
+            { id: 'reserve1', title: 'reserve1' },
+            { id: 'min_gas', title: 'min_gas' },
+            { id: 'v2_unit', title: 'v2_unit' },
+            { id: 'v3_unit', title: 'v3_unit' },
+            { id: 'simulated_output_amount_v3', title: 'simulated_output_amount_v3' }
         ]
     });
 
